@@ -22,10 +22,6 @@ public class Server {
         address = new InetSocketAddress(ip, port);
     }
 
-    public Server(SocketAddress address) throws IOException {
-        this.address = address;
-    }
-
     private void executeList(String path, ObjectOutputStream output) throws IOException {
         List<Path> files = Files.walk(Paths.get(path))
                                 .collect(Collectors.toList());
@@ -84,13 +80,14 @@ public class Server {
 
     private void accept() {
         try {
-            while (true) {
+            while (!Thread.interrupted()) {
                 Socket clientSocket = socket.accept();
                 Thread clientHandler = new Thread(() -> processClient(clientSocket));
                 threadList.add(clientHandler);
                 clientHandler.start();
             }
         } catch (IOException e) {
+            System.out.println("Accepting connections is stopped");
             // exit from function;
         }
     }
@@ -107,12 +104,17 @@ public class Server {
     }
 
     public void start() throws IOException {
-        socket = new ServerSocket();
-        socket.bind(address);
+        try {
+            socket = new ServerSocket();
+            socket.bind(address);
 
-        Thread connectHandler = new Thread(this::accept);
-        threadList.add(connectHandler);
-        connectHandler.start();
+            Thread connectHandler = new Thread(this::accept);
+            connectHandler.setDaemon(true);
+            threadList.add(connectHandler);
+            connectHandler.start();
+        } finally {
+            socket.close();
+        }
     }
 
     public static void main(String[] args) {
