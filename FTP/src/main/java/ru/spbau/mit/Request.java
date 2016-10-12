@@ -2,10 +2,13 @@ package ru.spbau.mit;
 
 import java.io.Serializable;
 
+/**
+ * The class describes a request from a client to a server
+ */
 public class Request implements Serializable {
     public enum Type {
-        LIST,
-        GET
+        LIST, // get list files and directories
+        GET // get contents file
     }
 
     private final Type type;
