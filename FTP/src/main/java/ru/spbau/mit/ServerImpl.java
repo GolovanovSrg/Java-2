@@ -30,7 +30,7 @@ public class ServerImpl {
 
         for (int i = 0; i < filePaths.size() && !Thread.interrupted(); ++i) {
             Path filePath = filePaths.get(i);
-            output.writeObject(filePath.toString());
+            output.writeUTF(filePath.toString());
             output.writeBoolean(Files.isDirectory(filePath));
             output.flush();
         }
@@ -73,9 +73,7 @@ public class ServerImpl {
                 }
             }
         } catch (IOException | ClassNotFoundException e) {
-            if (clientSocket.isClosed()) {
                 System.err.println("Client " + clientAddress + " error: " + e.getMessage());
-            }
         } finally {
             try {
                 clientSocket.close();
@@ -94,7 +92,9 @@ public class ServerImpl {
                 clientHandler.start();
             }
         } catch (IOException e) {
-            // exit from function;
+            if (socket != null && !socket.isClosed()) {
+                System.err.println("Socket error: " + e.getMessage());
+            }
         }
     }
 

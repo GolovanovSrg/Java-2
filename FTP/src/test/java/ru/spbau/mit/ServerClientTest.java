@@ -47,7 +47,7 @@ public class ServerClientTest {
     }
 
     @org.junit.Test
-    public void serverClientListTest() throws IOException, ClassNotFoundException {
+    public void serverClientListTest() throws IOException {
         File serverDir = Paths.get(System.getProperty("user.dir"), "serverDir").toFile();
         serverDir.mkdir();
 

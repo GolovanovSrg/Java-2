@@ -41,7 +41,7 @@ public class ClientImpl {
         return socket != null;
     }
 
-    public List<Pair<String, Boolean>> executeList(String path) throws IOException, ClassNotFoundException {
+    public List<Pair<String, Boolean>> executeList(String path) throws IOException {
         List<Pair<String, Boolean>> fileList = new LinkedList<>();
 
         ObjectOutputStream output = new ObjectOutputStream(socket.getOutputStream());
@@ -53,7 +53,7 @@ public class ClientImpl {
 
         int nFiles = input.readInt();
         for (int i = 0; i < nFiles; ++i) {
-            String name = (String) input.readObject();
+            String name = input.readUTF();
             Boolean isDir = input.readBoolean();
             fileList.add(Pair.of(name, isDir));
         }

@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Scanner;
 
 public class Client {
-    private static void processCmd(String cmdLine, ClientImpl client) throws IOException, ClassNotFoundException {
+    private static void processCmd(String cmdLine, ClientImpl client) throws IOException {
         String[] cmd = cmdLine.split("\\s+");
 
         if (cmd.length == 1 && cmd[0].equals("exit")) {
