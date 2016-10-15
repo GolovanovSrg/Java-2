@@ -16,6 +16,17 @@ public class CommitRef implements Serializable {
         this.parents = parents;
     }
 
+    public boolean equals(Object other) {
+        if (other instanceof CommitRef) {
+            CommitRef otherCommitRef = (CommitRef) other;
+            return idCommit.equals(otherCommitRef.getIdCommit()) &&
+                    (parents != null && parents.equals(otherCommitRef.getParents()) ||
+                    parents == otherCommitRef.getParents());
+        }
+
+        return false;
+    }
+
     public String getIdCommit() {
         return idCommit;
     }

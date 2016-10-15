@@ -84,7 +84,7 @@ public class CheckoutCmd implements Command {
         config.save();
 
         headBlobs.forEach(b -> {
-            Path path = Utils.REPO_DIR.resolve(b.getRepoPath());
+            Path path = Repository.REPO_DIR.resolve(b.getRepoPath());
             if (!FileUtils.deleteQuietly(path.toFile())) {
                 System.out.println("Can not delete " + path.toString() + " from working directory");
             }
@@ -94,7 +94,7 @@ public class CheckoutCmd implements Command {
             try {
                 b.toFile();
             } catch (IOException e) {
-                Path path = Utils.REPO_DIR.resolve(b.getRepoPath());
+                Path path = Repository.REPO_DIR.resolve(b.getRepoPath());
                 System.out.println("Can not copy " + path.toString() + " to working directory");
             }
         });
@@ -121,7 +121,7 @@ public class CheckoutCmd implements Command {
         config.save();
 
         headBlobs.forEach(b -> {
-            Path path = Utils.REPO_DIR.resolve(b.getRepoPath());
+            Path path = Repository.REPO_DIR.resolve(b.getRepoPath());
             if (!FileUtils.deleteQuietly(path.toFile())) {
                 System.out.println("Can not delete " + path.toString() + " from working directory");
             }
@@ -131,14 +131,14 @@ public class CheckoutCmd implements Command {
             try {
                 b.toFile();
             } catch (IOException e) {
-                Path path = Utils.REPO_DIR.resolve(b.getRepoPath());
+                Path path = Repository.REPO_DIR.resolve(b.getRepoPath());
                 System.out.println("Can not copy " + path.toString() + " to working directory");
             }
         });
     }
 
     public void execute() {
-        if (!Utils.isRepository()) {
+        if (!Repository.exists()) {
             System.out.println("Repository is not found");
             return;
         }

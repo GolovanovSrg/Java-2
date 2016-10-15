@@ -25,6 +25,15 @@ public class Branch implements Serializable {
         lastCommit = new CommitRef(newCommit.getId(), Arrays.asList(parent));
     }
 
+    public boolean equals(Object other) {
+        if (other instanceof Branch) {
+            Branch otherBranch = (Branch) other;
+            return  lastCommit.equals(otherBranch.lastCommit());
+        }
+
+        return false;
+    }
+
     public CommitRef lastCommit() {
         return lastCommit;
     }
@@ -41,7 +50,7 @@ public class Branch implements Serializable {
         return lastCommit;
     }
 
-    public CommitRef makeMergeCommit(String message, List<String> blobIds, CommitRef otherParent) throws IOException {
+    public CommitRef makeCommit(String message, List<String> blobIds, CommitRef otherParent) throws IOException {
         Commit newCommit = new Commit(message, blobIds);
         newCommit.save();
         CommitRef newCommitRef = new CommitRef(newCommit.getId(), Arrays.asList(lastCommit, otherParent));

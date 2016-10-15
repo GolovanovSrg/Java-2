@@ -3,7 +3,7 @@ package ru.spbau.mit.commands;
 import com.beust.jcommander.Parameters;
 import org.apache.commons.io.FileUtils;
 import ru.spbau.mit.Configuration;
-import ru.spbau.mit.Utils;
+import ru.spbau.mit.Repository;
 
 import java.io.File;
 import java.io.IOException;
@@ -15,7 +15,7 @@ public class InitCmd implements Command {
     }
 
     public void execute() {
-        File vcsDirectory = Utils.VCS_DIR.toFile();
+        File vcsDirectory = Repository.STORAGE_DIR.toFile();
 
         if (vcsDirectory.exists()) {
             if (!FileUtils.deleteQuietly(vcsDirectory)) {

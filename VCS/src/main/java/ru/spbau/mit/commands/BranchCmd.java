@@ -3,7 +3,7 @@ package ru.spbau.mit.commands;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import ru.spbau.mit.Configuration;
-import ru.spbau.mit.Utils;
+import ru.spbau.mit.Repository;
 
 import java.io.IOException;
 import java.util.List;
@@ -70,7 +70,7 @@ public class BranchCmd implements Command {
     }
 
     public void execute() {
-        if (!Utils.isRepository()) {
+        if (!Repository.exists()) {
             System.out.println("Repository is not found");
             return;
         }

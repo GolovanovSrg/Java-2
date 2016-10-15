@@ -1,5 +1,7 @@
 package ru.spbau.mit;
 
+import org.apache.commons.io.FileUtils;
+
 import java.io.*;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -10,7 +12,7 @@ import java.util.UUID;
  * The class stores commit content (message and blobs ids of commited files)
  */
 public class Commit implements Serializable {
-    public static final Path COMMITS_PATH = Utils.VCS_DIR.resolve("commits"); // important for garbage collector
+    public static final Path COMMITS_PATH = Repository.STORAGE_DIR.resolve("commits"); // important for garbage collector
 
     private final String id = UUID.randomUUID().toString();
     private final String message;
@@ -24,6 +26,17 @@ public class Commit implements Serializable {
     public Commit(String message, List<String> blobIds) {
         this.message = message;
         this.blobIds = blobIds;
+    }
+
+    public boolean equals(Object other) {
+        if (other instanceof Commit) {
+            Commit otherCommit = (Commit) other;
+            return id.equals(otherCommit.getId()) &&
+                    message.equals(otherCommit.getMessage()) &&
+                    blobIds.equals(otherCommit.getBlobIds());
+        }
+
+        return false;
     }
 
     public String getId() {
@@ -41,7 +54,7 @@ public class Commit implements Serializable {
     public void save() throws IOException {
         File commitsDirectory = COMMITS_PATH.toFile();
         if (!commitsDirectory.exists()) {
-            commitsDirectory.mkdir();
+            FileUtils.forceMkdir(commitsDirectory);
         }
 
         Path path = COMMITS_PATH.resolve(id);

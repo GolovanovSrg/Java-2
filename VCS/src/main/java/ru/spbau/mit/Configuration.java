@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
  * The class stores and controls configuration information (HEAD, branches, index)
  */
 public class Configuration implements Serializable {
-    public static final Path CONFIG_PATH = Utils.VCS_DIR.resolve("vcs.cfg");
+    public static final Path CONFIG_PATH = Repository.STORAGE_DIR.resolve("config.vcs");
 
     private String headName;
     private Branch head;
@@ -22,6 +22,7 @@ public class Configuration implements Serializable {
         head = new Branch();
         branches.put(headName, head);
     }
+
 
     public void save() throws IOException {
         try (FileOutputStream fileOutput = new FileOutputStream(CONFIG_PATH.toFile());
@@ -80,26 +81,26 @@ public class Configuration implements Serializable {
         head.makeCommit(message, blobIds);
     }
 
-    public void makeMergeCommit(String message, List<String> blobIds, CommitRef otherParent) throws IOException {
-        head.makeMergeCommit(message, blobIds, otherParent);
+    public void makeCommit(String message, List<String> blobIds, CommitRef otherParent) throws IOException {
+        head.makeCommit(message, blobIds, otherParent);
     }
 
     public void addToIndex(Path path, String blobId) {
-        index.put(Utils.repoPath(path).toString(), blobId);
+        index.put(Repository.getRepoPath(path).toString(), blobId);
     }
 
     public void delFromIndex(Path path) {
-        index.remove(Utils.repoPath(path).toString());
-    }
-
-    public String getBlobId(Path path) {
-        return index.get(Utils.repoPath(path).toString());
+        index.remove(Repository.getRepoPath(path).toString());
     }
 
     public Set<Path> getIndexPaths() {
         return index.keySet().stream()
                 .map(s -> Paths.get(s))
                 .collect(Collectors.toSet());
+    }
+
+    public String getBlobId(Path path) {
+        return index.get(Repository.getRepoPath(path).toString());
     }
 
     public void clearIndex() {
@@ -111,7 +112,7 @@ public class Configuration implements Serializable {
     }
 
     public boolean isIndexed(Path path) {
-        return index.containsKey(Utils.repoPath(path));
+        return index.containsKey(Repository.getRepoPath(path));
     }
 
     public List<CommitRef> getHeadHistory() {

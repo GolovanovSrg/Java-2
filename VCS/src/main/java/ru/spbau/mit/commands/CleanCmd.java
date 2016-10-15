@@ -3,7 +3,7 @@ package ru.spbau.mit.commands;
 import com.beust.jcommander.Parameters;
 import org.apache.commons.io.FileUtils;
 import ru.spbau.mit.Configuration;
-import ru.spbau.mit.Utils;
+import ru.spbau.mit.Repository;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -19,7 +19,7 @@ public class CleanCmd implements Command {
 
     @Override
     public void execute() {
-        if (!Utils.isRepository()) {
+        if (!Repository.exists()) {
             System.out.println("Repository is not found");
             return;
         }
@@ -34,7 +34,7 @@ public class CleanCmd implements Command {
 
         List<Path> repoFiles;
         try {
-            repoFiles = Utils.getRepoFiles();
+            repoFiles = Repository.getAllRepoFiles();
         } catch (IOException e) {
             System.out.println("Can not read directory of repository (" + e.getMessage() + ")");
             return;

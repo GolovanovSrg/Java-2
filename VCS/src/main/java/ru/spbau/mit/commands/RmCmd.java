@@ -4,7 +4,7 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import org.apache.commons.io.FileUtils;
 import ru.spbau.mit.Configuration;
-import ru.spbau.mit.Utils;
+import ru.spbau.mit.Repository;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -39,7 +39,7 @@ public class RmCmd implements Command {
 
     @Override
     public void execute() {
-        if (!Utils.isRepository()) {
+        if (!Repository.exists()) {
             System.out.println("Repository is not found");
             return;
         }
@@ -55,10 +55,10 @@ public class RmCmd implements Command {
         List<Path> listPaths = paths.stream()
                                     .map(s -> Paths.get(s))
                                     .collect(Collectors.toList());
-        listPaths = Utils.getOnlyFiles(listPaths);
+        listPaths = Repository.filterRepoFiles(listPaths);
 
         for (Path path : listPaths) {
-            if (path.startsWith(Utils.REPO_DIR)) {
+            if (path.startsWith(Repository.REPO_DIR)) {
                 removeFile(path, config);
             } else {
                 System.out.println(path.toString() + " is not in current repository");

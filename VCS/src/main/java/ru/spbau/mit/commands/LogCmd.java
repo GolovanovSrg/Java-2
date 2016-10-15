@@ -4,7 +4,7 @@ import com.beust.jcommander.Parameters;
 import ru.spbau.mit.Commit;
 import ru.spbau.mit.CommitRef;
 import ru.spbau.mit.Configuration;
-import ru.spbau.mit.Utils;
+import ru.spbau.mit.Repository;
 
 import java.io.IOException;
 
@@ -15,7 +15,7 @@ public class LogCmd implements Command {
     }
 
     public void execute() {
-        if (!Utils.isRepository()) {
+        if (!Repository.exists()) {
             System.out.println("Repository is not found");
             return;
         }

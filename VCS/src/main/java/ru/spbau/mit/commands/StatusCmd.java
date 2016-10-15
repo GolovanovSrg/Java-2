@@ -3,7 +3,7 @@ package ru.spbau.mit.commands;
 import com.beust.jcommander.Parameters;
 import ru.spbau.mit.Blob;
 import ru.spbau.mit.Configuration;
-import ru.spbau.mit.Utils;
+import ru.spbau.mit.Repository;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -29,7 +29,7 @@ public class StatusCmd implements Command {
 
                                     try {
                                         byte[] content = Files.readAllBytes(p);
-                                        String blobId = config.getBlobId(Utils.repoPath(p));
+                                        String blobId = config.getBlobId(Repository.getRepoPath(p));
                                         byte[] contentBlob = Blob.load(blobId).getContent();
                                         return !Arrays.deepEquals(new Object[]{content}, new Object[]{contentBlob});
                                     } catch (IOException | ClassNotFoundException e) {
@@ -56,7 +56,7 @@ public class StatusCmd implements Command {
 
     @Override
     public void execute() {
-        if (!Utils.isRepository()) {
+        if (!Repository.exists()) {
             System.out.println("Repository is not found");
             return;
         }
@@ -71,14 +71,14 @@ public class StatusCmd implements Command {
 
         Set<Path> repoPaths;
         try {
-            repoPaths = new HashSet<>(Utils.getRepoFiles());
+            repoPaths = new HashSet<>(Repository.getAllRepoFiles());
         } catch (IOException e) {
             System.out.println("Can not read directory of repository (" + e.getMessage() + ")");
             return;
         }
 
         Set<Path> indexPaths = config.getIndexPaths().stream()
-                                    .map(Utils.REPO_DIR::resolve)
+                                    .map(Repository.REPO_DIR::resolve)
                                     .collect(Collectors.toSet());
 
         Set<Path> changedPaths = getChangedPaths(repoPaths, indexPaths, config);

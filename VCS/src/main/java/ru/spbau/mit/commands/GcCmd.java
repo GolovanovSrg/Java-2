@@ -95,7 +95,7 @@ public class GcCmd implements Command {
 
     @Override
     public void execute() {
-        if (!Utils.isRepository()) {
+        if (!Repository.exists()) {
             System.out.println("Repository is not found");
             return;
         }

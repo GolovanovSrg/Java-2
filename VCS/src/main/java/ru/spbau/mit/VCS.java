@@ -6,6 +6,9 @@ import com.beust.jcommander.ParameterException;
 import ru.spbau.mit.commands.*;
 import java.util.*;
 
+/**
+ * The class - commands handler.
+ */
 public class VCS {
     private final JCommander jc = new JCommander(this);
     private final Map<String, Command> commands = new HashMap<>();
@@ -49,11 +52,14 @@ public class VCS {
         }
     }
 
+    /**
+     * Run a command with arguments
+     * @param args - command name and its arguments
+     */
     public void run(String[] args) {
         try {
             jc.parse(args);
         } catch (ParameterException e) {
-            System.out.println(e.getMessage());
             System.out.println("Unknown command. See help.");
             return;
         }
@@ -68,10 +74,6 @@ public class VCS {
 
     public static void main(String[] args) {
         VCS vcs = new VCS();
-        //try {
-            vcs.run(args);
-        //} catch (Exception e) {
-            //System.out.println("Error: " + e.getMessage());
-        //}
+        vcs.run(args);
     }
 }

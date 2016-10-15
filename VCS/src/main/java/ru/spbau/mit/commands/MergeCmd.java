@@ -57,11 +57,11 @@ public class MergeCmd implements Command {
 
     private List<Path> getCommonPaths(List<Blob> first, List<Blob> second) {
         List<Path> firstPaths = first.stream()
-                .map(b -> Utils.REPO_DIR.resolve(b.getRepoPath()))
+                .map(b -> Repository.REPO_DIR.resolve(b.getRepoPath()))
                 .collect(Collectors.toList());
 
         List<Path> secondPaths = second.stream()
-                .map(b -> Utils.REPO_DIR.resolve(b.getRepoPath()))
+                .map(b -> Repository.REPO_DIR.resolve(b.getRepoPath()))
                 .collect(Collectors.toList());
 
         secondPaths.retainAll(firstPaths);
@@ -69,7 +69,7 @@ public class MergeCmd implements Command {
     }
 
     public void execute() {
-        if (!Utils.isRepository()) {
+        if (!Repository.exists()) {
             System.out.println("Repository is not found");
             return;
         }
@@ -113,11 +113,11 @@ public class MergeCmd implements Command {
                     .map(Blob::getId)
                     .collect(Collectors.toList());
 
-            config.makeMergeCommit("Merge with " + name, commonBlobIds, branch.lastCommit());
+            config.makeCommit("Merge with " + name, commonBlobIds, branch.lastCommit());
             config.save();
 
             list2.forEach(b -> {
-                Path path = Utils.REPO_DIR.resolve(b.getRepoPath());
+                Path path = Repository.REPO_DIR.resolve(b.getRepoPath());
                 if (!path.toFile().exists()) {
                     try {
                         b.toFile();

@@ -1,28 +1,42 @@
 package ru.spbau.mit;
 
+import org.apache.commons.io.FileUtils;
+
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.UUID;
 
 /**
- * The class stores content of a file and path in repository
+ * The class stores content of a file and path in the repository
  */
 public class Blob implements Serializable {
-    public static final Path BLOBS_PATH = Utils.VCS_DIR.resolve("blobs"); // important for garbage collector
+    public static final Path BLOBS_PATH = Repository.STORAGE_DIR.resolve("blobs"); // important for garbage collector
 
     private final String id = UUID.randomUUID().toString();
     private final String repoPath;
     private final byte[] content;
 
     public Blob(Path path) throws IOException {
-        repoPath = Utils.repoPath(path).toString();
+        repoPath = Repository.getRepoPath(path).toString();
         content = Files.readAllBytes(path);
     }
 
     public String getId() {
         return id;
+    }
+
+    public boolean equals(Object other) {
+        if (other instanceof Blob) {
+            Blob otherBlob = (Blob) other;
+            return id.equals(otherBlob.getId()) &&
+                    repoPath.equals(otherBlob.getRepoPath().toString()) &&
+                    Arrays.equals(content, otherBlob.getContent());
+        }
+
+        return false;
     }
 
     public Path getRepoPath() {
@@ -36,7 +50,7 @@ public class Blob implements Serializable {
     public void save() throws IOException {
         File blobsDirectory = BLOBS_PATH.toFile();
         if (!blobsDirectory.exists()) {
-            blobsDirectory.mkdir();
+            FileUtils.forceMkdir(blobsDirectory);
         }
 
         Path path = BLOBS_PATH.resolve(id);
@@ -55,8 +69,7 @@ public class Blob implements Serializable {
     }
 
     public void toFile() throws IOException {
-        Path path = Utils.REPO_DIR.resolve(repoPath);
+        Path path = Repository.REPO_DIR.resolve(repoPath);
         Files.write(path, content);
     }
-
 }
