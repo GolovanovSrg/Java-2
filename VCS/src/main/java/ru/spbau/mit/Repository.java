@@ -2,9 +2,11 @@ package ru.spbau.mit;
 
 import java.io.File;
 import java.io.IOException;
+
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -13,11 +15,31 @@ import java.util.stream.Collectors;
  * The class designed to work with files in repository
  */
 public class Repository {
-    public static final Path REPO_DIR = Paths.get(System.getProperty("user.dir"));
-    public static final Path STORAGE_DIR = REPO_DIR.resolve(".vcs");
+    private static Path REPO_DIR = Paths.get(System.getProperty("user.dir"));
+    private static Path STORAGE_DIR = REPO_DIR.resolve(".vcs");
+
+    /**
+     * Set root of repository
+     *
+     * @param path
+     *        root path of repository
+     */
+    public static void setRoot(String path) {
+        REPO_DIR = Paths.get(path);
+        STORAGE_DIR = REPO_DIR.resolve(".vcs");
+    }
+
+    public static Path getRoot() {
+        return REPO_DIR;
+    }
+
+    public static Path getStorageDirectory() {
+        return STORAGE_DIR;
+    }
 
     /**
      * Verify existence of the repository
+     *
      * @return true if storage directory exists else false
      */
     public static boolean exists() {
@@ -27,7 +49,10 @@ public class Repository {
 
     /**
      * Get path relative to the repository
-     * @param path - path of a file
+     *
+     * @param path
+     *        path of the file
+     *
      * @return path relative to the repository
      */
     public static Path getRepoPath(Path path) {
@@ -37,8 +62,11 @@ public class Repository {
 
     /**
      * Get all files in the repository
+     *
      * @return list of paths files
+     *
      * @throws IOException
+     *         if an I/O error is thrown when accessing the file
      */
     public static List<Path> getAllRepoFiles() throws IOException {
         return Files.walk(REPO_DIR)
@@ -48,28 +76,29 @@ public class Repository {
                 .collect(Collectors.toList());
     }
 
-
     /**
-     * Get only files in the repository
-     * @param paths - list of paths files
+     * Get only files (not directories) in the repository
+     *
+     * @param paths
+     *        list of paths files
+     *
      * @return list of paths files in the repository
+     *
+     * @throws IOException
+     *         if an I/O error is thrown when accessing the file
      */
-    public static List<Path> filterRepoFiles(List<Path> paths) {
+    public static List<Path> filterRepoFiles(List<Path> paths) throws IOException {
         List<Path> result = new ArrayList<>();
 
         for (Path path : paths) {
             if (Files.isDirectory(path)) {
-                try {
-                    List<Path> dirFiles = Files.walk(path)
-                                               .filter(p -> !Files.isDirectory(p))
-                                               .map(p -> p.toAbsolutePath().normalize())
-                                               .filter(p -> !p.startsWith(STORAGE_DIR) && p.startsWith(REPO_DIR))
-                                               .collect(Collectors.toList());
+                List<Path> dirFiles = Files.walk(path)
+                                           .filter(p -> !Files.isDirectory(p))
+                                           .map(p -> p.toAbsolutePath().normalize())
+                                           .filter(p -> !p.startsWith(STORAGE_DIR) && p.startsWith(REPO_DIR))
+                                           .collect(Collectors.toList());
 
-                    result.addAll(dirFiles);
-                } catch (IOException e) {
-                    System.err.println("Can not process directory " + path.toString() + " (" + e.getMessage() + ")");
-                }
+                result.addAll(dirFiles);
             } else {
                 path = path.toAbsolutePath().normalize();
                 if (path.startsWith(REPO_DIR)) {

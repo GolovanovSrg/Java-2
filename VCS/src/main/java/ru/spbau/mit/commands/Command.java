@@ -7,12 +7,14 @@ package ru.spbau.mit.commands;
 public interface Command {
     /**
      * Get name of command
+     *
      * @return name command
      */
     String getName();
 
     /**
      * Execute command
+     *
      * @throws Exception
      */
     void execute() throws Exception;

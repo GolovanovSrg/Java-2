@@ -44,14 +44,14 @@ public class RepositoryTest {
 
     @Test
     public void exists() throws Exception {
-        Repository.STORAGE_DIR.toFile().mkdir();
+        Repository.getStorageDirectory().toFile().mkdir();
         assertTrue(Repository.exists());
     }
 
     @Test
     public void getRepoPath() throws Exception {
         Path path = makeFile().toPath().toAbsolutePath().normalize();
-        assertEquals(Repository.REPO_DIR.relativize(path), Repository.getRepoPath(path));
+        assertEquals(Repository.getRoot().relativize(path), Repository.getRepoPath(path));
     }
 
     @Test

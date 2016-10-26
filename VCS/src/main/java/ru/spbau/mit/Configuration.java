@@ -1,8 +1,9 @@
 package ru.spbau.mit;
 
+import ru.spbau.mit.exceptions.RepositoryException;
+
 import java.io.*;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -10,30 +11,61 @@ import java.util.stream.Collectors;
  * The class stores and controls configuration information (HEAD, branches, index)
  */
 public class Configuration implements Serializable {
-    public static final Path CONFIG_PATH = Repository.STORAGE_DIR.resolve("config.vcs");
+    private static final String CONFIG_NAME = "configuration.cfg";
 
     private String headName;
     private Branch head;
     private final Map<String, Branch> branches = new HashMap<>();
     private final Map<String, String> index = new HashMap<>();
 
+    /**
+     * @throws IOException
+     *         if an I/O error occurs writing to or creating the init commits file of init branch
+     */
     public Configuration() throws IOException {
         headName = "master";
         head = new Branch();
         branches.put(headName, head);
     }
 
+    public static Path getConfigurationPath() {
+        return Repository.getStorageDirectory().resolve(CONFIG_NAME);
+    }
 
+    /**
+     * Save the configuration to the file
+     *
+     * @throws IOException
+     *         if an I/O error occurs writing to the file
+     */
     public void save() throws IOException {
-        try (FileOutputStream fileOutput = new FileOutputStream(CONFIG_PATH.toFile());
+        try (FileOutputStream fileOutput = new FileOutputStream(getConfigurationPath().toFile());
              ObjectOutputStream objectOutput = new ObjectOutputStream(fileOutput)) {
             objectOutput.writeObject(this);
         }
     }
 
-    public static Configuration load() throws IOException, ClassNotFoundException {
-        try (FileInputStream fileInput = new FileInputStream(CONFIG_PATH.toFile());
-            ObjectInputStream objectInput = new ObjectInputStream(fileInput)) {
+    /**
+     * Load the configuration from the file
+     *
+     * @return Configuration from file
+     *
+     * @throws IOException
+     *         if an I/O error occurs reading from the stream
+     *
+     * @throws ClassNotFoundException
+     *         if class Configuration is not found
+     *
+     * @throws RepositoryException
+     *         if storage directory of the repository is not exists
+     */
+    public static Configuration load() throws IOException, ClassNotFoundException, RepositoryException {
+        if (!Repository.exists()) {
+            throw new RepositoryException("Repository is not found");
+        }
+
+        try (FileInputStream fileInput = new FileInputStream(getConfigurationPath().toFile());
+             ObjectInputStream objectInput = new ObjectInputStream(fileInput)) {
             Configuration config = (Configuration) objectInput.readObject();
             return config;
         }
@@ -95,7 +127,7 @@ public class Configuration implements Serializable {
 
     public Set<Path> getIndexPaths() {
         return index.keySet().stream()
-                .map(s -> Paths.get(s))
+                .map(s -> Repository.getRoot().resolve(s))
                 .collect(Collectors.toSet());
     }
 
@@ -107,12 +139,12 @@ public class Configuration implements Serializable {
         index.clear();
     }
 
-    public Collection<String> getIndexBlobs() {
-        return index.values();
+    public List<String> getIndexBlobs() {
+        return index.values().stream().collect(Collectors.toList());
     }
 
     public boolean isIndexed(Path path) {
-        return index.containsKey(Repository.getRepoPath(path));
+        return index.containsKey(Repository.getRepoPath(path).toString());
     }
 
     public List<CommitRef> getHeadHistory() {

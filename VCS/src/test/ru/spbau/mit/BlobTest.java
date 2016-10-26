@@ -57,7 +57,7 @@ public class BlobTest {
         FileUtils.deleteQuietly(tempFile);
         assertFalse(tempFile.exists());
 
-        blob.toFile();
+        blob.writeToFile();
         assertTrue(tempFile.exists());
 
         assertTrue(Arrays.equals(blob.getContent(), Files.readAllBytes(tempFile.toPath())));
