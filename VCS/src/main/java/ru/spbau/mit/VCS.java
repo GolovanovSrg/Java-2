@@ -42,52 +42,52 @@ public class VCS {
         jc.setProgramName("VCS");
     }
 
-    public InitCmd initCommand() {
-        return (InitCmd) commands.get("init");
+    public static InitCmd initCommand() {
+        return new InitCmd();
     }
 
-    public AddCmd addCommand() {
-        return (AddCmd) commands.get("add");
+    public static AddCmd addCommand() {
+        return new AddCmd();
     }
 
-    public BranchCmd branchCommand() {
-        return (BranchCmd) commands.get("branch");
+    public static BranchCmd branchCommand() {
+        return new BranchCmd();
     }
 
-    public CheckoutCmd checkoutCommand() {
-        return (CheckoutCmd) commands.get("chechout");
+    public static CheckoutCmd checkoutCommand() {
+        return new CheckoutCmd();
     }
 
-    public CleanCmd cleanCommand() {
-        return (CleanCmd) commands.get("clean");
+    public static CleanCmd cleanCommand() {
+        return new CleanCmd();
     }
 
-    public CommitCmd commitCommand() {
-        return (CommitCmd) commands.get("commit");
+    public static CommitCmd commitCommand() {
+        return new CommitCmd();
     }
 
-    public GcCmd gcCommand() {
-        return (GcCmd) commands.get("gc");
+    public static GcCmd gcCommand() {
+        return new GcCmd();
     }
 
-    public LogCmd logCommand() {
-        return (LogCmd) commands.get("log");
+    public static LogCmd logCommand() {
+        return new LogCmd();
     }
 
-    public MergeCmd mergeCommand() {
-        return (MergeCmd) commands.get("merge");
+    public static MergeCmd mergeCommand() {
+        return new MergeCmd();
     }
 
-    public ResetCmd resetCommand() {
-        return (ResetCmd) commands.get("reset");
+    public static ResetCmd resetCommand() {
+        return new ResetCmd();
     }
 
-    public RmCmd rmCommand() {
-        return (RmCmd) commands.get("rm");
+    public static RmCmd rmCommand() {
+        return new RmCmd();
     }
 
-    public StatusCmd statusCommand() {
-        return (StatusCmd) commands.get("status");
+    public static StatusCmd statusCommand() {
+        return new StatusCmd();
     }
 
     private void execCommand(String name) {
