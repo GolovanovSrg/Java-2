@@ -1,13 +1,17 @@
 package ru.spbau.mit;
 
+import org.apache.commons.lang3.tuple.Triple;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
+import java.io.PrintStream;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.Assert.*;
 
@@ -38,7 +42,7 @@ public class CommandsTest {
         final String branchName2 = "test2";
         final String[] createBranchParams1 = {"branch", branchName1};
         final String[] createBranchParams2 = {"branch", branchName2};
-        final String[] deleteBranchParams = {"branch", "-d", branchName2};
+        final String[] deleteBranchParams1 = {"branch", "-d", branchName2};
 
         vcs.run(createBranchParams1);
         config = Configuration.load();
@@ -48,13 +52,15 @@ public class CommandsTest {
         config = Configuration.load();
         assertTrue(config.branchExists(branchName2));
 
-        List<String> branches = vcs.branchCommand().getBranchNames();
+        List<String> branches = VCS.branchCommand().getBranchNames();
         assertTrue(branches.containsAll(Arrays.asList(branchName1, branchName2, "master")));
         assertEquals(branches.size(), 3);
 
-        vcs.run(deleteBranchParams);
+        vcs.run(deleteBranchParams1);
         config = Configuration.load();
         assertFalse(config.branchExists(branchName2));
+
+        Commit commit1 = config.head().lastCommit().getCommit();
 
 
         // CheckoutCmd branch test
@@ -63,6 +69,8 @@ public class CommandsTest {
         vcs.run(ckeckoutParams1);
         config = Configuration.load();
         assertEquals(branchName1, config.headName());
+
+        Commit commit2 = config.head().lastCommit().getCommit();
 
 
         // AddCmd test
@@ -85,6 +93,13 @@ public class CommandsTest {
         assertTrue(Commit.getStoragePath().resolve(commitId1).toFile().exists());
         assertEquals(config.getIndexBlobs(), Commit.load(commitId1).getBlobIds());
 
+        Commit commit3 = config.head().lastCommit().getCommit();
+
+
+
+        // LogCmd test
+        assertEquals(Arrays.asList(commit3, commit2, commit1), VCS.logCommand().getHistory());
+
 
         // CheckoutCmd commit test
         final File file2 = workDirectory.newFile("file2");
@@ -98,6 +113,9 @@ public class CommandsTest {
         vcs.run(commitParams2);
         vcs.run(ckeckoutParams2);
         assertFalse(file2.exists());
+        config = Configuration.load();
+
+        assertFalse(config.isIndexed(file2.toPath()));
         assertTrue(file1.exists());
 
 
@@ -115,6 +133,8 @@ public class CommandsTest {
         config = Configuration.load();
         assertTrue(file1.exists());
         assertTrue(config.isIndexed(file1.toPath()));
+        assertTrue(file2.exists());
+        assertTrue(config.isIndexed(file2.toPath()));
 
 
         // CleanCmd test
@@ -126,17 +146,31 @@ public class CommandsTest {
         assertTrue(file1.exists());
 
 
+        // StatusCmd test
+        file2.delete();
+        try(PrintStream stream = new PrintStream(file1)) {
+            stream.print("4 8 15 16 23 42");
+        }
+        file3 = workDirectory.newFile("test3");
+
+        Triple<Set<Path>, Set<Path>, Set<Path>> triple = VCS.statusCommand().getStatus();
+
+        assertEquals(file1.toPath(), triple.getLeft().iterator().next());
+        assertEquals(file3.toPath(), triple.getMiddle().iterator().next());
+        assertEquals(file2.toPath(), triple.getRight().iterator().next());
+
         // ResetCmd test
         final String[] resetParams = {"reset", file1.toString()};
 
         vcs.run(resetParams);
         config = Configuration.load();
         assertFalse(config.isIndexed(file1.toPath()));
+        vcs.run(addParams1);
+
 
         // RmCmd
         final String[] rmParams = {"rm", file1.toString()};
 
-        vcs.run(addParams1);
         config = Configuration.load();
         assertTrue(config.isIndexed(file1.toPath()));
         vcs.run(rmParams);
