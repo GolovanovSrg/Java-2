@@ -77,8 +77,9 @@ public class AddCmd implements Command {
 
     public void execute() throws Exception {
         List<Path> listPaths = pathsFromCli.stream()
-                                           .map(s -> Paths.get(s))
+                                           .map(s -> Paths.get(s).toAbsolutePath().normalize())
                                            .collect(Collectors.toList());
+
         pathsFromCli.clear();
 
         List<Path> addedPaths = addFiles(listPaths);

@@ -54,8 +54,8 @@ public class ResetCmd implements Command {
 
     public void execute() throws Exception {
         List<Path> listPaths = pathsFromCli.stream()
-                                           .map(s -> Paths.get(s))
-                                           .collect(Collectors.toList());
+                                            .map(s -> Paths.get(s).toAbsolutePath().normalize())
+                                            .collect(Collectors.toList());
 
         pathsFromCli.clear();
 
