@@ -103,7 +103,7 @@ public class CheckoutCmd implements Command {
         config.switchBranch(ANONYMOUS_BRANCH_NAME);
 
         config.clearIndex();
-        blobs.forEach(b -> config.addToIndex(b.getRepoPath(), b.getId()));
+        blobs.forEach(b -> config.addToIndex(Repository.getRoot().resolve(b.getRepoPath()), b.getId()));
 
         config.save();
 
@@ -168,7 +168,7 @@ public class CheckoutCmd implements Command {
         config.switchBranch(name);
 
         config.clearIndex();
-        blobs.forEach(b -> config.addToIndex(b.getRepoPath(), b.getId()));
+        blobs.forEach(b -> config.addToIndex(Repository.getRoot().resolve(b.getRepoPath()), b.getId()));
 
         config.save();
 

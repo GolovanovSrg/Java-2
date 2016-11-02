@@ -106,6 +106,7 @@ public class MergeCmd implements Command {
         Branch branch = config.getBranch(branchName);
         CommitRef parent = getParentCommit(config.head(), branch);
 
+
         List<Blob> list1 = changedFiles(parent, config.head().lastCommit());
         List<Blob> list2 = changedFiles(parent, branch.lastCommit());
 
@@ -128,6 +129,7 @@ public class MergeCmd implements Command {
         list2.forEach(b -> {
 
             Path path = Repository.getRoot().resolve(b.getRepoPath());
+
             if (!path.toFile().exists()) {
                 try {
                     b.writeToFile();

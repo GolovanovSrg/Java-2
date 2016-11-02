@@ -14,10 +14,6 @@ import java.util.List;
 
 @Parameters(commandDescription = "Show commit logs")
 public class LogCmd implements Command {
-    public String getName() {
-        return "log";
-    }
-
     /**
      * Get the history of commits
      *
@@ -41,6 +37,10 @@ public class LogCmd implements Command {
         }
 
         return result;
+    }
+
+    public String getName() {
+        return "log";
     }
 
     public void execute() throws Exception {

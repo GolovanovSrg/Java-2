@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 
 @Parameters(commandDescription = "Add file contents to the index")
 public class AddCmd implements Command {
-    @Parameter(description = "<pathsFromCli>", variableArity = true, required = true)
+    @Parameter(description = "<paths>", variableArity = true, required = true)
     private List<String> pathsFromCli = new ArrayList<>();
 
     private void indexFile(Path path, Configuration config) throws IOException, ClassNotFoundException {
@@ -79,7 +79,6 @@ public class AddCmd implements Command {
         List<Path> listPaths = pathsFromCli.stream()
                                            .map(s -> Paths.get(s))
                                            .collect(Collectors.toList());
-
         pathsFromCli.clear();
 
         List<Path> addedPaths = addFiles(listPaths);
