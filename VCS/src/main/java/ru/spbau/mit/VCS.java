@@ -17,7 +17,7 @@ public class VCS {
     private final JCommander jc = new JCommander(this);
     private final Map<String, Command> commands = new HashMap<>();
 
-    @Parameter(names = "-h", help = true)
+    @Parameter(names = {"-h", "--help"}, help = true)
     private boolean help;
 
     public VCS() {
@@ -93,6 +93,7 @@ public class VCS {
     private void execCommand(String name) {
         Command cmd = commands.get(name);
         if (cmd == null) {
+            System.out.println("Unknown command");
             jc.usage();
             return;
         }
@@ -112,7 +113,8 @@ public class VCS {
         try {
             jc.parse(args);
         } catch (ParameterException e) {
-            System.out.println("Unknown command. See help.");
+            System.out.println("Unknown command");
+            jc.usage();
             return;
         }
 

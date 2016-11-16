@@ -1,20 +1,19 @@
 package ru.spbau.mit.commands;
 
 import com.beust.jcommander.Parameters;
-
-import org.apache.commons.lang3.tuple.Triple;
-
 import ru.spbau.mit.Blob;
+import ru.spbau.mit.Commit;
 import ru.spbau.mit.Configuration;
 import ru.spbau.mit.Repository;
 import ru.spbau.mit.exceptions.RepositoryException;
 
 import java.io.IOException;
-
 import java.nio.file.Files;
 import java.nio.file.Path;
-
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Parameters(commandDescription = "Show state working directory")
@@ -55,10 +54,25 @@ public class StatusCmd implements Command {
                 .collect(Collectors.toSet());
     }
 
+    private Set<Path> getNewIndexedPaths(Configuration config) throws IOException, ClassNotFoundException {
+        Commit lastCommit = config.head().lastCommit().getCommit();
+        List<String> commitBlobIds = lastCommit.getBlobIds();
+        List<String> indexedBlobIds = config.getIndexBlobs();
+        indexedBlobIds.removeAll(commitBlobIds);
+
+        Set<Path> newIndexedPaths = new HashSet<>();
+        for (String id : indexedBlobIds) {
+            Path path = Repository.getRoot().resolve(Blob.load(id).getRepoPath());
+            newIndexedPaths.add(path);
+        }
+
+        return newIndexedPaths;
+    }
+
     /**
      * Get the changed, untracked and deleted files
      *
-     * @return triple of lists of changed, untracked and deleted paths
+     * @return list of sets of indexed, changed, untracked and deleted paths
      *
      * @throws RepositoryException
      *         if the storage directory of the repository not exists
@@ -69,7 +83,7 @@ public class StatusCmd implements Command {
      * @throws ClassNotFoundException
      *         if class Configuration is not found
      */
-    public Triple<Set<Path>, Set<Path>, Set<Path>> getStatus() throws RepositoryException, IOException, ClassNotFoundException {
+    public List<Set<Path>> getStatus() throws RepositoryException, IOException, ClassNotFoundException {
         Configuration config = Configuration.load();
 
         Set<Path> repoPaths = new HashSet<>(Repository.getAllRepoFiles());
@@ -77,11 +91,12 @@ public class StatusCmd implements Command {
                                                      .map(Repository.getRoot()::resolve)
                                                      .collect(Collectors.toSet());
 
+        Set<Path> indexedPaths = getNewIndexedPaths(config);
         Set<Path> changedPaths = getChangedPaths(repoPaths, indexPaths, config);
         Set<Path> untrackedPaths = getUntreckedPaths(repoPaths, indexPaths);
         Set<Path> deletedPaths = getDeletedPaths(repoPaths, indexPaths);
 
-        return Triple.of(changedPaths, untrackedPaths, deletedPaths);
+        return Arrays.asList(indexedPaths, changedPaths, untrackedPaths, deletedPaths);
     }
 
     public String getName() {
@@ -90,21 +105,27 @@ public class StatusCmd implements Command {
 
     public void execute() throws Exception {
 
-        Triple<Set<Path>, Set<Path>, Set<Path>> triple = getStatus();
+        List<Set<Path>> status = getStatus();
 
-        Set<Path> changedPaths = triple.getLeft();
+        Set<Path> indexedPaths = status.get(0);
+        if (indexedPaths.size() > 0) {
+            System.out.println("\nIndexed files:");
+            indexedPaths.forEach(System.out::println);
+        }
+
+        Set<Path> changedPaths = status.get(1);
         if (changedPaths.size() > 0) {
             System.out.println("\nChanged files:");
             changedPaths.forEach(System.out::println);
         }
 
-        Set<Path> untrackedPaths = triple.getMiddle();
+        Set<Path> untrackedPaths = status.get(2);
         if (untrackedPaths.size() > 0) {
             System.out.println("\nUntracked files:");
             untrackedPaths.forEach(System.out::println);
         }
 
-        Set<Path> deletedPaths = triple.getRight();
+        Set<Path> deletedPaths = status.get(3);
         if (deletedPaths.size() > 0) {
             System.out.println("\nDeleted files:");
             deletedPaths.forEach(System.out::println);

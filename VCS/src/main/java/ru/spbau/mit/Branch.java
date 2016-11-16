@@ -2,10 +2,7 @@ package ru.spbau.mit;
 
 import java.io.IOException;
 import java.io.Serializable;
-
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 /**
  * The class implements a branch on vcs for Configuration class
@@ -127,14 +124,21 @@ public class Branch implements Serializable {
     /**
      * Get history of commits
      *
-     * @return list of CommitRef
+     * @return set of CommitRef
      */
-    public List<CommitRef> getHistory() {
-        List<CommitRef> history = new LinkedList<>();
-        CommitRef commit = lastCommit;
-        while (commit != null) {
-            history.add(commit);
-            commit = commit.getFirstParent();
+    public Set<CommitRef> getHistory() {
+        LinkedHashSet<CommitRef> history = new LinkedHashSet<>();
+        LinkedList<CommitRef> queue = new LinkedList<>();
+        history.add(lastCommit);
+        queue.addLast(lastCommit);
+
+        while (queue.size() != 0) {
+            CommitRef currentCommitRef = queue.pollFirst();
+            if (currentCommitRef.getParents() != null)
+            {
+                history.addAll(currentCommitRef.getParents());
+                queue.addAll(currentCommitRef.getParents());
+            }
         }
 
         return history;

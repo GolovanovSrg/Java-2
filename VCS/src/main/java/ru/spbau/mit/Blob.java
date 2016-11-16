@@ -3,11 +3,8 @@ package ru.spbau.mit;
 import org.apache.commons.io.FileUtils;
 
 import java.io.*;
-
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-
 import java.util.Arrays;
 import java.util.UUID;
 
@@ -53,8 +50,8 @@ public class Blob implements Serializable {
         return false;
     }
 
-    public Path getRepoPath() {
-        return Paths.get(repoPath);
+    public String getRepoPath() {
+        return repoPath;
     }
 
     public byte[] getContent() {

@@ -147,7 +147,7 @@ public class Configuration implements Serializable {
         return index.containsKey(Repository.getRepoPath(path).toString());
     }
 
-    public List<CommitRef> getHeadHistory() {
+    public Set<CommitRef> getHeadHistory() {
         return head.getHistory();
     }
 }

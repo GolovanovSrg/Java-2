@@ -1,6 +1,5 @@
 package ru.spbau.mit;
 
-import org.apache.commons.lang3.tuple.Triple;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -36,7 +35,8 @@ public class CommandsTest {
         vcs.run(initParams);
 
         assertTrue(Repository.exists());
-
+        config = Configuration.load();
+        Commit commit0 = config.head().lastCommit().getCommit();
 
         // BranchCmd test
         final String branchName1 = "test1";
@@ -113,6 +113,10 @@ public class CommandsTest {
 
         vcs.run(addParams2);
         vcs.run(commitParams2);
+
+        config = Configuration.load();
+        Commit commit4 = config.head().lastCommit().getCommit();
+
         vcs.run(ckeckoutParams2);
         assertFalse(file2.exists());
         config = Configuration.load();
@@ -138,6 +142,12 @@ public class CommandsTest {
         assertTrue(file2.exists());
         assertTrue(config.isIndexed(file2.toPath()));
 
+        config = Configuration.load();
+        Commit commit5 = config.head().lastCommit().getCommit();
+
+        // LogCmd test
+        assertEquals(Arrays.asList(commit5, commit0, commit4, commit3, commit2), VCS.logCommand().getHistory());
+
 
         // CleanCmd test
         final String[] cleanParam = {"clean"};
@@ -155,11 +165,16 @@ public class CommandsTest {
         }
         file3 = workDirectory.newFile("test3");
 
-        Triple<Set<Path>, Set<Path>, Set<Path>> triple = VCS.statusCommand().getStatus();
+        File file5 = workDirectory.newFile("file5");
+        final String[] addParams5 = {"add", file5.getAbsolutePath()};
+        vcs.run(addParams5);
 
-        assertEquals(file1.toPath(), triple.getLeft().iterator().next());
-        assertEquals(file3.toPath(), triple.getMiddle().iterator().next());
-        assertEquals(file2.toPath(), triple.getRight().iterator().next());
+        List<Set<Path>> status = VCS.statusCommand().getStatus();
+
+        assertEquals(file5.toPath(), status.get(0).iterator().next());
+        assertEquals(file1.toPath(), status.get(1).iterator().next());
+        assertEquals(file3.toPath(), status.get(2).iterator().next());
+        assertEquals(file2.toPath(), status.get(3).iterator().next());
 
         // ResetCmd test
         final String[] resetParams = {"reset", file1.toString()};

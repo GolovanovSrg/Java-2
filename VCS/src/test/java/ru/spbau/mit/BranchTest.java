@@ -4,10 +4,14 @@ import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -55,6 +59,8 @@ public class BranchTest {
         CommitRef newCommit1 = master.makeCommit("test1", Arrays.asList("1", "2", "3"));
         CommitRef newCommit2 = master.makeCommit("test2", Arrays.asList("1", "2"));
 
-        assertEquals(Arrays.asList(newCommit2, newCommit1, initCommit), master.getHistory());
+        Set<CommitRef> history = new LinkedHashSet<>();
+        history.addAll(Arrays.asList(newCommit2, newCommit1, initCommit));
+        assertEquals(history, master.getHistory());
     }
 }
