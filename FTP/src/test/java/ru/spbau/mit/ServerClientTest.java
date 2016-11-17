@@ -4,7 +4,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -12,7 +11,9 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class ServerClientTest {
     private final String ip = "127.0.0.1";
@@ -23,7 +24,7 @@ public class ServerClientTest {
 
 
     @org.junit.Before
-    public void serverClientStart() throws IOException {
+    public void serverClientStart() throws Exception {
         server.start();
         assertTrue(server.isStarted());
 
@@ -35,7 +36,7 @@ public class ServerClientTest {
     }
 
     @org.junit.After
-    public void serverClientStop() throws IOException {
+    public void serverClientStop() throws Exception {
         client1.disconnect();
         assertFalse(client1.isConnected());
 
@@ -47,7 +48,7 @@ public class ServerClientTest {
     }
 
     @org.junit.Test
-    public void serverClientListTest() throws IOException {
+    public void serverClientListTest() throws Exception {
         File serverDir = Paths.get(System.getProperty("user.dir"), "serverDir").toFile();
         serverDir.mkdir();
 
@@ -61,7 +62,7 @@ public class ServerClientTest {
     }
 
     @org.junit.Test
-    public void serverClientGetTest() throws IOException {
+    public void serverClientGetTest() throws Exception {
         File clientDir = Paths.get(System.getProperty("user.dir"), "clientDir").toFile();
         clientDir.mkdir();
         File serverDir = Paths.get(System.getProperty("user.dir"), "serverDir").toFile();

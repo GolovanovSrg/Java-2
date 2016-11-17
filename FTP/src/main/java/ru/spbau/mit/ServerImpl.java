@@ -1,5 +1,10 @@
 package ru.spbau.mit;
 
+import org.apache.commons.lang3.tuple.Pair;
+import ru.spbau.mit.exceptions.CommandException;
+import ru.spbau.mit.exceptions.CommunicationException;
+import ru.spbau.mit.protocol.*;
+
 import java.io.*;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
@@ -21,42 +26,66 @@ public class ServerImpl {
         address = new InetSocketAddress(ip, port);
     }
 
-    private void executeList(String path, ObjectOutputStream output) throws IOException {
-        List<Path> filePaths = Files.walk(Paths.get(path))
-                                .collect(Collectors.toList());
+    private void executeList(String path, ObjectOutputStream output) throws CommandException {
+        try {
+            ListResponse resp;
+            Path directoryPath = Paths.get(path).toAbsolutePath().normalize();
 
-        output.writeInt(filePaths.size());
-        output.flush();
+            if (!directoryPath.toFile().exists()) {
+                resp = new ListResponse(false, null);
+            } else {
+                List<Pair<String, Boolean>> filePaths = Files.walk(directoryPath)
+                                                             .map(p -> Pair.of(p.toString(), Files.isDirectory(p)))
+                                                             .collect(Collectors.toList());
+                resp = new ListResponse(true, filePaths);
+            }
 
-        for (int i = 0; i < filePaths.size() && !Thread.interrupted(); ++i) {
-            Path filePath = filePaths.get(i);
-            output.writeUTF(filePath.toString());
-            output.writeBoolean(Files.isDirectory(filePath));
+            output.writeObject(resp);
             output.flush();
+        } catch (IOException e) {
+            CommandException exception = new CommandException("Can not send the response to the client");
+            exception.addSuppressed(e);
+            throw exception;
         }
     }
 
-    private void executeGet(String path, ObjectOutputStream output) throws IOException {
-        File file = new File(path);
-        if (Files.isDirectory(file.toPath()) || !file.exists()) {
-            output.writeLong(0);
-            output.flush();
-        } else {
-            byte[] buffer = new byte[4096];
-            try (InputStream fileInput = new FileInputStream(file)) {
-                long size = file.length();
-                output.writeLong(size);
+    private void executeGet(String path, ObjectOutputStream output) throws CommandException {
+        try {
+            GetResponse resp;
 
-                int readBytes = 0;
-                while ((readBytes = fileInput.read(buffer)) != -1 && !Thread.interrupted()) {
-                    output.write(buffer, 0, readBytes);
-                    output.flush();
+            File file = Paths.get(path).toAbsolutePath().normalize().toFile();
+            boolean fileExists = !Files.isDirectory(file.toPath()) && file.exists();
+
+            if (!fileExists) {
+                resp = new GetResponse(false, 0);
+            } else {
+                resp = new GetResponse(true, file.length());
+            }
+
+            output.writeObject(resp);
+            output.flush();
+
+            if (fileExists && file.length() > 0) {
+                byte[] buffer = new byte[4096];
+                try (InputStream fileInput = new FileInputStream(file)) {
+                    long size = file.length();
+                    output.writeLong(size);
+
+                    int readBytes = 0;
+                    while ((readBytes = fileInput.read(buffer)) != -1 && !Thread.interrupted()) {
+                        output.write(buffer, 0, readBytes);
+                        output.flush();
+                    }
                 }
             }
+        } catch (IOException e) {
+            CommandException exception = new CommandException("Can not send the response to the client");
+            exception.addSuppressed(e);
+            throw exception;
         }
     }
 
-    private void processClient(Socket clientSocket) {
+    private void processClient(Socket clientSocket) throws CommandException, CommunicationException {
         String clientAddress = clientSocket.getInetAddress().toString();
 
         try {
@@ -64,53 +93,80 @@ public class ServerImpl {
                 ObjectInputStream input = new ObjectInputStream(clientSocket.getInputStream());
                 ObjectOutputStream output = new ObjectOutputStream(clientSocket.getOutputStream());
 
-                Request req = (Request) input.readObject();
+                Message req = (Message) input.readObject();
 
-                if (req.getType().equals(Request.Type.LIST)) {
-                    executeList(req.getPath(), output);
+                if (req.getType() == MessageType.DISCONNECT_REQUEST) {
+                    return;
+                } else if (req.getType() == MessageType.LIST_REQUEST) {
+                    executeList(((ListRequest) req).getPath(), output);
+                } else if (req.getType() == MessageType.GET_REQUEST) {
+                    executeGet(((GetRequest) req).getPath(), output);
                 } else {
-                    executeGet(req.getPath(), output);
+                    throw new CommandException("Unknown request from the client " + clientAddress);
                 }
             }
         } catch (IOException | ClassNotFoundException e) {
-                System.err.println("Client " + clientAddress + " error: " + e.getMessage());
+            CommandException exception = new CommandException("Can not process the request from the client " + clientAddress);
+            exception.addSuppressed(e);
+            throw exception;
         } finally {
             try {
                 clientSocket.close();
             } catch (IOException e) {
-                System.err.println("Can not close socket for " + clientAddress + " (" + e.getMessage() + ")");
+                CommandException exception = new CommandException("Can not close the socket for client " + clientAddress);
+                exception.addSuppressed(e);
+                throw exception;
             }
         }
     }
 
-    private void accept() {
+    private void accept() throws CommunicationException {
         try {
             while (!Thread.interrupted()) {
                 Socket clientSocket = socket.accept();
-                Thread clientHandler = new Thread(() -> processClient(clientSocket));
+                Thread clientHandler = new Thread(() -> {
+                    try {
+                        processClient(clientSocket);
+                    } catch (CommandException | CommunicationException e) {
+                        System.err.println("Error: " + e.getMessage());
+                        for (Throwable t : e.getSuppressed()) {
+                            System.err.println("Suppressed: " + t.getMessage());
+                        }
+                    }
+                });
+
                 threadList.add(clientHandler);
                 clientHandler.start();
             }
         } catch (IOException e) {
             if (socket != null && !socket.isClosed()) {
-                System.err.println("Socket error: " + e.getMessage());
+                CommunicationException exception = new CommunicationException("Socket error");
+                exception.addSuppressed(e);
+                throw exception;
             }
         }
     }
 
-    public void stop() throws IOException {
+    public void stop() throws CommunicationException {
         if (socket == null) {
             System.err.println("Server is already stopping");
             return;
         }
 
-        socket.close();
+        try {
+            socket.close();
+        } catch (IOException e) {
+            CommunicationException exception = new CommunicationException("Can not close the socket when stopping the server");
+            exception.addSuppressed(e);
+            throw exception;
+        }
+
         socket = null;
         threadList.forEach(Thread::interrupt);
         threadList.clear();
     }
 
-    public void start() throws IOException {
+    public void start() throws CommunicationException {
         if (socket != null) {
             System.err.println("Server is already starting");
             return;
@@ -120,12 +176,23 @@ public class ServerImpl {
             socket = new ServerSocket();
             socket.bind(address);
 
-            Thread connectHandler = new Thread(this::accept);
+            Thread connectHandler = new Thread(() -> {
+                try {
+                    this.accept();
+                } catch (CommunicationException e) {
+                    System.err.println("Error: " + e.getMessage());
+                    for (Throwable t : e.getSuppressed()) {
+                        System.err.println("Suppressed: " + t.getMessage());
+                    }
+                }
+            });
+
             connectHandler.setDaemon(true);
             threadList.add(connectHandler);
             connectHandler.start();
         } catch (IOException e){
-            IOException exception = new IOException(e);
+            CommunicationException exception = new CommunicationException("Socket error");
+            exception.addSuppressed(e);
             if (socket != null) {
                 try {
                     socket.close();
