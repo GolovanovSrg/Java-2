@@ -7,20 +7,21 @@ import java.util.List;
 
 public class SeedStatus {
     private static final long MIN_TIME_SILENCE_MINUTES = 5;
-    private LocalDateTime lastActivity = LocalDateTime.now();
+    private LocalDateTime lastUpdate = LocalDateTime.now();
     private List<String> fileIds = new ArrayList<>();
 
     public SeedStatus(List<String> fileIds) {
         this.fileIds = fileIds;
     }
 
-    public void update() {
-        lastActivity = LocalDateTime.now();
+    public void update(List<String> fileIds) {
+        this.fileIds = fileIds;
+        lastUpdate = LocalDateTime.now();
     }
 
     public boolean isActive() {
         LocalDateTime now = LocalDateTime.now();
-        return lastActivity.plusMinutes(MIN_TIME_SILENCE_MINUTES).compareTo(now) >= 0;
+        return lastUpdate.plusMinutes(MIN_TIME_SILENCE_MINUTES).compareTo(now) >= 0;
     }
 
     public List<String> getFileIds() {

@@ -2,26 +2,25 @@ package mit.spbau.ru.server;
 
 import mit.spbau.ru.common.Seed;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class Swarm {
     private final Map<Seed, SeedStatus> seeds = new HashMap<>();
     private final Map<String, FileStatus> files = new HashMap<>();
 
-    public void addSeed(String fileId, Seed seed) {
-        if (!files.containsKey(fileId)) {
-            files.put(fileId, new FileStatus());
-        }
-
-        files.get(fileId).addSeed(seed);
-
+    public void updateSeed(Seed seed, List<String> fileIds) {
         if (!seeds.containsKey(seed)) {
-            seeds.put(seed, new SeedStatus(Arrays.asList(fileId)));
+            seeds.put(seed, new SeedStatus(fileIds));
+        } else {
+            seeds.get(seed).update(fileIds);
         }
 
-        seeds.get(seed).addFileId(fileId);
+        for (String id : fileIds) {
+            if (!files.containsKey(id)) {
+                files.put(id, new FileStatus());
+            }
+            files.get(id).addSeed(seed);
+        }
     }
 
     public void removeSeed(Seed seed) {
@@ -37,5 +36,22 @@ public class Swarm {
         }
 
         seeds.remove(seed);
+    }
+
+    public List<Seed> getSeeds(String fileId) {
+        FileStatus fStatus = files.get(fileId);
+        List<Seed> fSeeds = (fStatus == null) ? new ArrayList<>() : fStatus.getSeeds();
+        List<Seed> activeSeeds = new ArrayList<>();
+
+        for (Seed s : fSeeds) {
+            SeedStatus sStatus = seeds.get(s);
+            if (sStatus.isActive()) {
+                activeSeeds.add(s);
+            } else {
+                removeSeed(s);
+            }
+        }
+
+        return activeSeeds;
     }
 }
