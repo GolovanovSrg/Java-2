@@ -1,24 +1,26 @@
 package mit.spbau.ru.server;
 
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 public class SeedStatus {
-    private boolean isAlive = true;
+    private static final long MIN_TIME_SILENCE_MINUTES = 5;
+    private LocalDateTime lastActivity = LocalDateTime.now();
     private List<String> fileIds = new ArrayList<>();
 
-    public SeedStatus(boolean isAlive, List<String> fileIds) {
-        this.isAlive = isAlive;
+    public SeedStatus(List<String> fileIds) {
         this.fileIds = fileIds;
     }
 
-    public void setIsAlive(boolean value) {
-        isAlive = value;
+    public void update() {
+        lastActivity = LocalDateTime.now();
     }
 
-    public boolean isAlive() {
-        return isAlive;
+    public boolean isActive() {
+        LocalDateTime now = LocalDateTime.now();
+        return lastActivity.plusMinutes(MIN_TIME_SILENCE_MINUTES).compareTo(now) >= 0;
     }
 
     public List<String> getFileIds() {

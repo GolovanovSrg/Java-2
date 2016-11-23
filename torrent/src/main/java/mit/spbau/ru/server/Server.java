@@ -8,15 +8,18 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class Server {
-    private final static String INDEX_NAME = ".index";
-    private final static int PORT = 8081;
+    private static final String INDEX_NAME = ".index";
+    private static final int PORT = 8081;
+    private static final int N_THREADS = 10;
 
     private final Index index;
     private final Swarm swarm = new Swarm();
-
-    private final ServerSocket socket ;
+    private final ServerSocket socket;
+    private final ExecutorService threadpool = Executors.newFixedThreadPool(N_THREADS);
 
     public Server(int port) throws IndexIOException, CommunicationException {
         Path indexPath = Paths.get(System.getProperty("user.dir")).resolve(INDEX_NAME);
@@ -33,5 +36,13 @@ public class Server {
             exception.addSuppressed(e);
             throw exception;
         }
+    }
+
+    void start() {
+
+    }
+
+    void stop() {
+
     }
 }

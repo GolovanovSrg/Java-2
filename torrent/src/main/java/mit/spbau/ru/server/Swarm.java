@@ -18,7 +18,7 @@ public class Swarm {
         files.get(fileId).addSeed(seed);
 
         if (!seeds.containsKey(seed)) {
-            seeds.put(seed, new SeedStatus(true, Arrays.asList(fileId)));
+            seeds.put(seed, new SeedStatus(Arrays.asList(fileId)));
         }
 
         seeds.get(seed).addFileId(fileId);
