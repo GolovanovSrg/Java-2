@@ -1,4 +1,4 @@
-package ru.spbau.mit;
+package ru.spbau.mit.server;
 
 import ru.spbau.mit.exceptions.CommunicationException;
 
@@ -17,7 +17,7 @@ public class Server {
         System.out.println("USAGE:");
         System.out.println(EXIT_COMMAND_NAME + " - exit from the server");
         System.out.println(START_COMMAND_NAME + " - start the server");
-        System.out.println(STOP_COMMAND_NAME + "stop - stop the server");
+        System.out.println(STOP_COMMAND_NAME + " - stop the server");
     }
 
     private static String parse(String[] cmd) {
@@ -37,7 +37,7 @@ public class Server {
                 server.stop();
             }
         } catch (CommunicationException e) {
-            ;
+            System.out.println(e.getMessage());
         }
     }
 
@@ -81,6 +81,7 @@ public class Server {
         }
 
             Scanner scanner = new Scanner(System.in);
+            System.out.print(">> ");
             while (scanner.hasNextLine()) {
                 String cmdLine = scanner.nextLine();
                 String cmd = parse(cmdLine.split("\\s+"));
@@ -103,6 +104,8 @@ public class Server {
                 } catch (Exception e) {
                     System.out.println("Error: " + e.getMessage());
                 }
+
+                System.out.print(">> ");
             }
     }
 }

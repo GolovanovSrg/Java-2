@@ -1,4 +1,4 @@
-package ru.spbau.mit;
+package ru.spbau.mit.server;
 
 import org.apache.commons.lang3.tuple.Pair;
 import ru.spbau.mit.exceptions.CommandException;

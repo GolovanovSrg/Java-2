@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>ru.spbau.mit</groupId>
-    <artifactId>FTP</artifactId>
+    <artifactId>ftp</artifactId>
     <version>1.0</version>
     <build>
         <plugins>
@@ -17,6 +17,51 @@
                     <target>1.8</target>
                 </configuration>
             </plugin>
+
+            <plugin>
+            <artifactId>maven-assembly-plugin</artifactId>
+            <executions>
+                <execution>
+                    <id>build-server</id>
+                    <configuration>
+                        <archive>
+                            <manifest>
+                                <mainClass>ru.spbau.mit.server.Server</mainClass>
+                            </manifest>
+                        </archive>
+                        <descriptorRefs>
+                            <descriptorRef>jar-with-dependencies</descriptorRef>
+                        </descriptorRefs>
+                        <finalName>ftp-server</finalName>
+                        <appendAssemblyId>false</appendAssemblyId>
+                    </configuration>
+                    <phase>package</phase>
+                    <goals>
+                        <goal>assembly</goal>
+                    </goals>
+                </execution>
+                <execution>
+                    <id>build-client</id>
+                    <configuration>
+                        <archive>
+                            <manifest>
+                                <mainClass>ru.spbau.mit.client.Client</mainClass>
+                            </manifest>
+                        </archive>
+                        <descriptorRefs>
+                            <descriptorRef>jar-with-dependencies</descriptorRef>
+                        </descriptorRefs>
+                        <finalName>ftp-client</finalName>
+                        <appendAssemblyId>false</appendAssemblyId>
+                    </configuration>
+                    <phase>package</phase>
+                    <goals>
+                        <goal>assembly</goal>
+                    </goals>
+                </execution>
+            </executions>
+        </plugin>
+
         </plugins>
     </build>
 

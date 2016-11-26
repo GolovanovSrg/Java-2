@@ -1,4 +1,4 @@
-package ru.spbau.mit;
+package ru.spbau.mit.client;
 
 import org.apache.commons.lang3.tuple.Pair;
 import ru.spbau.mit.exceptions.CommandException;
@@ -112,6 +112,7 @@ public class Client {
         }
 
         Scanner scanner = new Scanner(System.in);
+        System.out.print(">> ");
         while (scanner.hasNextLine()) {
             String cmdLine = scanner.nextLine();
             Pair<String, String> cmd = parse(cmdLine.split("\\s+"));
@@ -140,6 +141,8 @@ public class Client {
             } catch (Exception e) {
                 System.out.println("Error: " + e.getMessage());
             }
+
+            System.out.print(">> ");
         }
     }
 

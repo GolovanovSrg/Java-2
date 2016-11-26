@@ -2,6 +2,8 @@ package ru.spbau.mit;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import ru.spbau.mit.client.ClientImpl;
+import ru.spbau.mit.server.ServerImpl;
 
 import java.io.File;
 import java.io.PrintStream;
