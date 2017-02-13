@@ -1,0 +1,8 @@
+architecture, n_clients, array_size, n_requests, time_between_requests, array_processing_time, request_processing_time, client_time
+TCP_THREAD_ON_CLIENT, 1, 1000, 10, 0, 9, 9, 898
+TCP_THREAD_ON_CLIENT, 1, 2000, 10, 0, 24, 24, 1077
+TCP_THREAD_ON_CLIENT, 1, 3000, 10, 0, 58, 58, 1294
+TCP_THREAD_ON_CLIENT, 1, 4000, 10, 0, 102, 102, 1754
+TCP_THREAD_ON_CLIENT, 1, 5000, 10, 0, 163, 164, 2464
+TCP_THREAD_ON_CLIENT, 1, 6000, 10, 0, 254, 254, 3467
+TCP_THREAD_ON_CLIENT, 1, 7000, 10, 0, 341, 342, 4444

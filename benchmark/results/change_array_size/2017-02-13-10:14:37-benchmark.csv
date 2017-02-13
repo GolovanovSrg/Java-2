@@ -1,0 +1,8 @@
+architecture, n_clients, array_size, n_requests, time_between_requests, array_processing_time, request_processing_time, client_time
+TCP_SERVER_ASYNC, 1, 1000, 10, 0, 6, 6, 629
+TCP_SERVER_ASYNC, 1, 2000, 10, 0, 24, 24, 693
+TCP_SERVER_ASYNC, 1, 3000, 10, 0, 62, 62, 842
+TCP_SERVER_ASYNC, 1, 4000, 10, 0, 104, 104, 1256
+TCP_SERVER_ASYNC, 1, 5000, 10, 0, 170, 171, 1937
+TCP_SERVER_ASYNC, 1, 6000, 10, 0, 249, 250, 2778
+TCP_SERVER_ASYNC, 1, 7000, 10, 0, 349, 350, 3815

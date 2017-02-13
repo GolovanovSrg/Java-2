@@ -1,0 +1,7 @@
+option java_package = "ru.spbau.mit.common";
+option java_outer_classname = "ProtoMessage";
+
+message Message {
+    required int32 size = 1;
+    repeated int32 item = 2;
+}

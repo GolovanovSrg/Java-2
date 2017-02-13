@@ -1,0 +1,6 @@
+architecture, n_clients, array_size, n_requests, time_between_requests, array_processing_time, request_processing_time, client_time
+UDP_SERVER_THREAD_POOL, 1, 2000, 10, 0, 51, 52, 657
+UDP_SERVER_THREAD_POOL, 11, 2000, 10, 0, 59, 60, 1717
+UDP_SERVER_THREAD_POOL, 21, 2000, 10, 0, 55, 55, 2315
+UDP_SERVER_THREAD_POOL, 31, 2000, 10, 0, 56, 58, 4524
+UDP_SERVER_THREAD_POOL, 41, 2000, 10, 0, 47, 47, 5995

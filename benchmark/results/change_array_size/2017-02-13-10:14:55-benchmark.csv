@@ -1,0 +1,8 @@
+architecture, n_clients, array_size, n_requests, time_between_requests, array_processing_time, request_processing_time, client_time
+TCP_SERVER_SINGLE_THREAD, 1, 1000, 10, 0, 6, 6, 168
+TCP_SERVER_SINGLE_THREAD, 1, 2000, 10, 0, 24, 24, 426
+TCP_SERVER_SINGLE_THREAD, 1, 3000, 10, 0, 56, 56, 829
+TCP_SERVER_SINGLE_THREAD, 1, 4000, 10, 0, 102, 103, 1419
+TCP_SERVER_SINGLE_THREAD, 1, 5000, 10, 0, 168, 168, 2181
+TCP_SERVER_SINGLE_THREAD, 1, 6000, 10, 0, 247, 247, 3062
+TCP_SERVER_SINGLE_THREAD, 1, 7000, 10, 0, 339, 339, 4058

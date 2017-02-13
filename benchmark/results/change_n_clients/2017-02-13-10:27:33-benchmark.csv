@@ -1,0 +1,6 @@
+architecture, n_clients, array_size, n_requests, time_between_requests, array_processing_time, request_processing_time, client_time
+TCP_SERVER_FIXED_THREAD_POOL, 1, 2000, 10, 0, 130, 138, 1971
+TCP_SERVER_FIXED_THREAD_POOL, 11, 2000, 10, 0, 91, 173, 2610
+TCP_SERVER_FIXED_THREAD_POOL, 21, 2000, 10, 0, 80, 339, 4658
+TCP_SERVER_FIXED_THREAD_POOL, 31, 2000, 10, 0, 73, 530, 6437
+TCP_SERVER_FIXED_THREAD_POOL, 41, 2000, 10, 0, 76, 809, 9283
